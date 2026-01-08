@@ -1,19 +1,12 @@
 import { Link } from "react-router-dom";
 import categoryWomen from "@/assets/category-women.png";
-import categoryMen from "@/assets/category-men.png";
 
 const categories = [
   {
-    name: "Women",
+    name: "Women's Collection",
     description: "Elegant pieces for every occasion",
     image: categoryWomen,
     href: "/shop?category=women",
-  },
-  {
-    name: "Men",
-    description: "Refined essentials for modern life",
-    image: categoryMen,
-    href: "/shop?category=men",
   },
 ];
 
@@ -21,12 +14,12 @@ const Categories = () => {
   return (
     <section className="py-24 lg:py-32 bg-secondary">
       <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-10">
+        <div className="max-w-4xl mx-auto">
           {categories.map((category, index) => (
             <Link
               key={category.name}
               to={category.href}
-              className="group relative aspect-[4/3] overflow-hidden animate-slide-up"
+              className="group relative aspect-[16/9] overflow-hidden animate-slide-up block"
               style={{ animationDelay: `${index * 0.15}s` }}
             >
               {/* Background image */}

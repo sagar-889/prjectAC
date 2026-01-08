@@ -60,10 +60,10 @@ export const DEMO_PRODUCTS: Product[] = [
     name: "Wool Double-Breasted Coat",
     description: "Luxurious double-breasted coat in a rich terracotta wool blend. Features a classic notched lapel, tortoiseshell buttons, and a warm Italian wool lining.",
     price: 485,
-    category: "Men",
+    category: "Women",
     images: [fashion3, fashion11, fashion12],
     colors: ["Terracotta", "Camel", "Charcoal"],
-    sizes: ["S", "M", "L", "XL"],
+    sizes: ["XS", "S", "M", "L", "XL"],
     stock: 8,
     is_featured: true,
     is_new: false,
@@ -109,4 +109,4 @@ export const DEMO_PRODUCTS: Product[] = [
   },
 ];
 
-export const CATEGORIES = ["All", "Women", "Men", "Accessories", "Home"];
+export const CATEGORIES = ["All", "Women", "Accessories"];

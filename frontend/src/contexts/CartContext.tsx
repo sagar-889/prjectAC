@@ -34,10 +34,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Load cart from database when user changes
+  // Cart items are persisted in the database per user
   useEffect(() => {
     if (user) {
       loadCart();
     } else {
+      // Clear local state when logged out, but items remain in database
       setItems([]);
     }
   }, [user]);
@@ -67,8 +69,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }));
 
       setItems(cartItems);
+      console.log("Cart loaded successfully:", cartItems.length, "items");
     } catch (error) {
       console.error("Error loading cart:", error);
+      toast.error("Failed to load cart items");
     }
   };
 
