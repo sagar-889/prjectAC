@@ -544,11 +544,31 @@ app.get('/api/admin/orders', authenticateToken, isAdmin, async (req, res) => {
 
 app.put('/api/admin/orders/:id/status', authenticateToken, isAdmin, async (req, res) => {
     try {
-        const { status } = req.body;
-        const result = await pool.query(
-            'UPDATE orders SET status = $1, updated_at = now() WHERE id = $2 RETURNING *',
-            [status, req.params.id]
-        );
+        const { status, tracking_number, tracking_url } = req.body;
+        let query = 'UPDATE orders SET status = $1, updated_at = now()';
+        const params = [status];
+        let paramCount = 2;
+
+        if (tracking_number) {
+            query += `, tracking_number = $${paramCount}`;
+            params.push(tracking_number);
+            paramCount++;
+        }
+
+        if (tracking_url) {
+            query += `, tracking_url = $${paramCount}`;
+            params.push(tracking_url);
+            paramCount++;
+        }
+
+        if (status === 'shipped') {
+            query += `, shipped_at = now()`;
+        }
+
+        query += ` WHERE id = $${paramCount} RETURNING *`;
+        params.push(req.params.id);
+
+        const result = await pool.query(query, params);
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -72,9 +72,9 @@ const AdminOrders = () => {
         }
     };
 
-    const updateOrderStatus = async (orderId: string, status: string) => {
+    const updateOrderStatus = async (orderId: string, status: string, tracking_number?: string, tracking_url?: string) => {
         try {
-            await adminService.updateOrderStatus(orderId, status);
+            await adminService.updateOrderStatus(orderId, status, tracking_number, tracking_url);
             toast.success(`Order status updated to ${status}`);
             fetchOrders();
         } catch (error) {
@@ -202,7 +202,7 @@ const AdminOrders = () => {
                                                     <Eye className="h-4 w-4" />
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent className="max-w-2xl">
+                                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                                                 <DialogHeader>
                                                     <DialogTitle>Order Details #{order.id.slice(0, 8).toUpperCase()}</DialogTitle>
                                                 </DialogHeader>
@@ -215,6 +215,41 @@ const AdminOrders = () => {
                                                             <p className="text-sm flex justify-between"><span>Date:</span> <span className="font-medium">{new Date(order.created_at).toLocaleString()}</span></p>
                                                             <p className="text-sm flex justify-between"><span>Status:</span> <span className={`uppercase text-[10px] tracking-widest font-bold px-2 py-0.5 rounded-full ${getStatusColor(order.status)}`}>{order.status}</span></p>
                                                             <p className="text-sm flex justify-between border-t border-border pt-2 mt-2"><span>Total Amount:</span> <span className="font-bold text-lg">₹{Number(order.total).toFixed(2)}</span></p>
+                                                        </div>
+
+                                                        <h4 className="text-xs uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-2 mt-6">
+                                                            <Truck className="h-3 w-3" /> Shipping Tracking
+                                                        </h4>
+                                                        <div className="bg-secondary/50 p-4 rounded-sm space-y-3">
+                                                            <div>
+                                                                <label className="text-xs text-muted-foreground mb-1 block">Tracking Number</label>
+                                                                <Input
+                                                                    id={`tracking-${order.id}`}
+                                                                    placeholder="Enter tracking number"
+                                                                    defaultValue={(order as any).tracking_number || ""}
+                                                                    className="h-9"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-xs text-muted-foreground mb-1 block">Tracking URL</label>
+                                                                <Input
+                                                                    id={`tracking-url-${order.id}`}
+                                                                    placeholder="https://..."
+                                                                    defaultValue={(order as any).tracking_url || ""}
+                                                                    className="h-9"
+                                                                />
+                                                            </div>
+                                                            <Button
+                                                                size="sm"
+                                                                className="w-full"
+                                                                onClick={() => {
+                                                                    const trackingNumber = (document.getElementById(`tracking-${order.id}`) as HTMLInputElement)?.value;
+                                                                    const trackingUrl = (document.getElementById(`tracking-url-${order.id}`) as HTMLInputElement)?.value;
+                                                                    updateOrderStatus(order.id, 'shipped', trackingNumber, trackingUrl);
+                                                                }}
+                                                            >
+                                                                Update Tracking & Mark as Shipped
+                                                            </Button>
                                                         </div>
 
                                                         <h4 className="text-xs uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-2 mt-6">

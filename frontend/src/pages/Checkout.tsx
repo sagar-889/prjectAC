@@ -102,7 +102,7 @@ const Checkout = () => {
       const orderData = {
         items: orderItems,
         shipping_address: formData,
-        total: Number(total) * 1.1
+        total: Number(total) * 1.18 // 18% tax
       };
 
       // Navigate to payment page with order data
@@ -243,13 +243,13 @@ const Checkout = () => {
                       <span>Free</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span>${(Number(total) * 0.1).toFixed(2)}</span>
+                      <span className="text-muted-foreground">Tax (18%)</span>
+                      <span>${(Number(total) * 0.18).toFixed(2)}</span>
                     </div>
                     <div className="border-t border-border pt-2 mt-2">
                       <div className="flex justify-between font-medium text-lg">
                         <span>Total</span>
-                        <span>${(Number(total) * 1.1).toFixed(2)}</span>
+                        <span>${(Number(total) * 1.18).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

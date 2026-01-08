@@ -170,11 +170,11 @@ const Payment = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>₹{(orderData.total / 1.1).toFixed(2)}</span>
+                    <span>₹{(orderData.total / 1.18).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax (10%)</span>
-                    <span>₹{(orderData.total - orderData.total / 1.1).toFixed(2)}</span>
+                    <span className="text-muted-foreground">Tax (18%)</span>
+                    <span>₹{(orderData.total - orderData.total / 1.18).toFixed(2)}</span>
                   </div>
                   <div className="border-t border-border pt-2 mt-2">
                     <div className="flex justify-between font-medium text-lg">

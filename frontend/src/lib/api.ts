@@ -79,10 +79,10 @@ export const api = {
   // Admin
   getAdminStats: () => apiRequest('/api/admin/stats'),
   getAdminOrders: () => apiRequest('/api/admin/orders'),
-  updateOrderStatus: (id: string, status: string) =>
+  updateOrderStatus: (id: string, status: string, tracking_number?: string, tracking_url?: string) =>
     apiRequest(`/api/admin/orders/${id}/status`, {
       method: 'PUT',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, tracking_number, tracking_url }),
     }),
   getAdminProducts: () => apiRequest('/api/admin/products'),
   createProduct: (productData: any) =>

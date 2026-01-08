@@ -20,8 +20,8 @@ export const adminService = {
         return api.getAdminOrders();
     },
 
-    async updateOrderStatus(orderId: string, status: string) {
-        return api.updateOrderStatus(orderId, status);
+    async updateOrderStatus(orderId: string, status: string, tracking_number?: string, tracking_url?: string) {
+        return api.updateOrderStatus(orderId, status, tracking_number, tracking_url);
     },
 
     async getAllProducts() {
