@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Heart } from "lucide-react";
@@ -9,12 +9,15 @@ import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWishlist } from "@/contexts/WishlistContext";
-import { DEMO_PRODUCTS } from "@/data/products";
+import { api } from "@/lib/api";
+import { type Product } from "@/data/products";
 
 const Wishlist = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { wishlistIds } = useWishlist();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
     if (!user && !loading) {
@@ -22,7 +25,35 @@ const Wishlist = () => {
     }
   }, [user, loading, navigate]);
 
-  if (loading) {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (wishlistIds.length === 0) {
+        setProducts([]);
+        setLoadingProducts(false);
+        return;
+      }
+
+      try {
+        setLoadingProducts(true);
+        // Fetch all products and filter by wishlist IDs
+        const allProducts = await api.getAllProducts('');
+        const wishlistProducts = allProducts.filter((p: Product) => 
+          wishlistIds.includes(p.id)
+        );
+        setProducts(wishlistProducts);
+      } catch (error) {
+        console.error("Error fetching wishlist products:", error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    if (user) {
+      fetchProducts();
+    }
+  }, [wishlistIds, user]);
+
+  if (loading || loadingProducts) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -31,8 +62,6 @@ const Wishlist = () => {
   }
 
   if (!user) return null;
-
-  const wishlistProducts = DEMO_PRODUCTS.filter((p) => wishlistIds.includes(p.id));
 
   return (
     <>
@@ -60,9 +89,9 @@ const Wishlist = () => {
           </div>
 
           <div className="container mx-auto px-6 pb-24">
-            {wishlistProducts.length > 0 ? (
+            {products.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-                {wishlistProducts.map((product) => (
+                {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>

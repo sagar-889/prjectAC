@@ -505,6 +505,66 @@ app.post('/api/orders/verify-payment', authenticateToken, async (req, res) => {
     }
 });
 
+// Razorpay Webhook for payment status updates
+app.post('/api/webhooks/razorpay', async (req, res) => {
+    try {
+        const webhookSignature = req.headers['x-razorpay-signature'];
+        const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+        // Verify webhook signature
+        if (webhookSecret) {
+            const expectedSignature = crypto
+                .createHmac('sha256', webhookSecret)
+                .update(JSON.stringify(req.body))
+                .digest('hex');
+
+            if (webhookSignature !== expectedSignature) {
+                return res.status(400).json({ error: 'Invalid webhook signature' });
+            }
+        }
+
+        const event = req.body.event;
+        const payload = req.body.payload.payment.entity;
+
+        console.log('Razorpay Webhook Event:', event);
+
+        // Handle different payment events
+        switch (event) {
+            case 'payment.captured':
+                // Payment successful
+                await pool.query(
+                    'UPDATE orders SET status = $1 WHERE razorpay_order_id = $2',
+                    ['processing', payload.order_id]
+                );
+                break;
+
+            case 'payment.failed':
+                // Payment failed
+                await pool.query(
+                    'UPDATE orders SET status = $1 WHERE razorpay_order_id = $2',
+                    ['failed', payload.order_id]
+                );
+                break;
+
+            case 'payment.authorized':
+                // Payment authorized (for cards)
+                await pool.query(
+                    'UPDATE orders SET status = $1 WHERE razorpay_order_id = $2',
+                    ['authorized', payload.order_id]
+                );
+                break;
+
+            default:
+                console.log('Unhandled webhook event:', event);
+        }
+
+        res.json({ status: 'ok' });
+    } catch (error) {
+        console.error('Webhook error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Admin Routes
 app.get('/api/admin/stats', authenticateToken, isAdmin, async (req, res) => {
     try {

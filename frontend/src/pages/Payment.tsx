@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Smartphone, CreditCard, Wallet, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -86,24 +86,6 @@ const Payment = () => {
           email: orderData.shipping_address.email,
           contact: orderData.shipping_address.phone,
         },
-        config: {
-          display: {
-            blocks: {
-              banks: {
-                name: 'Pay using UPI',
-                instruments: [
-                  {
-                    method: 'upi'
-                  }
-                ]
-              }
-            },
-            sequence: ['block.banks'],
-            preferences: {
-              show_default_blocks: true
-            }
-          }
-        },
         theme: {
           color: "#000000",
         },
@@ -183,6 +165,37 @@ const Payment = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Payment Methods */}
+              <div className="bg-background border border-border p-6 rounded-sm mb-6">
+                <h2 className="font-display text-xl mb-4">Payment Methods</h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Choose from multiple secure payment options
+                </p>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="border border-border rounded-sm p-4 text-center">
+                    <Smartphone className="h-8 w-8 mx-auto mb-2 text-primary" />
+                    <p className="text-sm font-medium">UPI</p>
+                    <p className="text-xs text-muted-foreground">PhonePe, GPay, Paytm</p>
+                  </div>
+                  <div className="border border-border rounded-sm p-4 text-center">
+                    <CreditCard className="h-8 w-8 mx-auto mb-2 text-primary" />
+                    <p className="text-sm font-medium">Cards</p>
+                    <p className="text-xs text-muted-foreground">Credit/Debit Cards</p>
+                  </div>
+                  <div className="border border-border rounded-sm p-4 text-center">
+                    <Building2 className="h-8 w-8 mx-auto mb-2 text-primary" />
+                    <p className="text-sm font-medium">Net Banking</p>
+                    <p className="text-xs text-muted-foreground">All Major Banks</p>
+                  </div>
+                  <div className="border border-border rounded-sm p-4 text-center">
+                    <Wallet className="h-8 w-8 mx-auto mb-2 text-primary" />
+                    <p className="text-sm font-medium">Wallets</p>
+                    <p className="text-xs text-muted-foreground">Paytm, PhonePe, etc.</p>
+                  </div>
+                </div>
 
                 <Button
                   onClick={handlePayment}
@@ -196,7 +209,19 @@ const Payment = () => {
 
                 <div className="text-sm text-muted-foreground text-center mt-4">
                   <p>🔒 Secure payment powered by Razorpay</p>
+                  <p className="text-xs mt-2">Your payment information is encrypted and secure</p>
                 </div>
+              </div>
+
+              <div className="bg-background border border-border p-6 rounded-sm mb-6">
+                <h3 className="font-medium mb-3">How UPI Payment Works:</h3>
+                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                  <li>Click on "Pay" button above</li>
+                  <li>Select UPI as your payment method</li>
+                  <li>Enter your UPI ID (e.g., yourname@paytm) or scan QR code</li>
+                  <li>Approve the payment in your UPI app</li>
+                  <li>Enter your UPI PIN to complete the payment</li>
+                </ol>
               </div>
 
               <div className="text-xs text-muted-foreground space-y-1 text-center">

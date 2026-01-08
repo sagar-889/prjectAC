@@ -31,7 +31,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const data = await api.getWishlist();
-      setWishlistIds(data);
+      // Extract product_id from the wishlist items
+      const ids = data.map((item: any) => item.product_id);
+      setWishlistIds(ids);
     } catch (error) {
       console.error("Error loading wishlist:", error);
     } finally {
