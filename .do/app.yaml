@@ -1,0 +1,71 @@
+name: lakshmi-collections
+region: blr
+services:
+  # Backend API Service
+  - name: backend-api
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: sagar-889/prjectAC
+    source_dir: /backend
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    run_command: npm start
+    build_command: npm install
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: RAZORPAY_KEY_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: RAZORPAY_KEY_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: PORT
+        scope: RUN_TIME
+        value: "8080"
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: "production"
+    http_port: 8080
+    routes:
+      - path: /api
+
+  # Frontend Static Site
+  - name: frontend
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: sagar-889/prjectAC
+    source_dir: /frontend
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    build_command: npm install && npm run build
+    output_dir: dist
+    envs:
+      - key: VITE_API_URL
+        scope: BUILD_TIME
+        value: "${backend-api.PUBLIC_URL}"
+      - key: VITE_RAZORPAY_KEY_ID
+        scope: BUILD_TIME
+        type: SECRET
+      - key: VITE_PHONE
+        scope: BUILD_TIME
+        value: "+918247588435"
+      - key: VITE_WHATSAPP
+        scope: BUILD_TIME
+        value: "918247588435"
+      - key: VITE_ADDRESS
+        scope: BUILD_TIME
+        value: "9-262 pallapuveedhy, sankhavaram"
+      - key: VITE_MAP_URL
+        scope: BUILD_TIME
+        value: "https://maps.app.goo.gl/E9ccmQFJHA1nArE87"
+    routes:
+      - path: /
