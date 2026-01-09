@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { MapPin } from "lucide-react";
@@ -19,7 +19,7 @@ const Checkout = () => {
   const [formData, setFormData] = useState({
     fullName: user?.full_name || "",
     email: user?.email || "",
-    phone: "",
+    phone: user?.mobile_number || "",
     address: "",
     city: "",
     state: "",
@@ -29,6 +29,18 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+
+  // Auto-fill form when user data is available
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.full_name || prev.fullName,
+        email: user.email || prev.email,
+        phone: user.mobile_number || prev.phone
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
