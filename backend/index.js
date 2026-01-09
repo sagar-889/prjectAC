@@ -25,6 +25,10 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
+// Log Razorpay initialization
+console.log('Razorpay initialized:', !!razorpay);
+console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID ? 'Set' : 'Missing');
+
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -338,15 +342,19 @@ app.post('/api/orders/create', authenticateToken, async (req, res) => {
         await client.query('BEGIN');
         const { items, total, shipping_address } = req.body;
 
+        console.log('Creating order with data:', { items, total, shipping_address });
+
         // 1. Create order in database
         const orderResult = await client.query(
             'INSERT INTO orders (user_id, total, status, shipping_address) VALUES ($1, $2, $3, $4) RETURNING *',
             [req.user.id, total, 'pending', shipping_address]
         );
         const order = orderResult.rows[0];
+        console.log('Order created:', order.id);
 
         // 2. Create order items
         for (const item of items) {
+            console.log('Creating order item:', item);
             await client.query(
                 'INSERT INTO order_items (order_id, product_id, quantity, price, size, color) VALUES ($1, $2, $3, $4, $5, $6)',
                 [order.id, item.product_id, item.quantity, item.price, item.size, item.color]
@@ -354,13 +362,21 @@ app.post('/api/orders/create', authenticateToken, async (req, res) => {
         }
 
         // 3. Create Razorpay order
+        console.log('Creating Razorpay order...');
         const options = {
             amount: Math.round(total * 100), // amount in smallest currency unit
             currency: "INR",
             receipt: `receipt_${order.id}`,
         };
 
-        const rzpOrder = await razorpay.orders.create(options);
+        let rzpOrder;
+        try {
+            rzpOrder = await razorpay.orders.create(options);
+            console.log('Razorpay order created:', rzpOrder.id);
+        } catch (rzpError) {
+            console.error('Razorpay error:', rzpError);
+            throw new Error(`Razorpay order creation failed: ${rzpError.message}`);
+        }
 
         // 4. Update order with Razorpay Order ID
         await client.query(
@@ -369,9 +385,11 @@ app.post('/api/orders/create', authenticateToken, async (req, res) => {
         );
 
         await client.query('COMMIT');
+        console.log('Order creation successful');
         res.json({ order, razorpayOrder: rzpOrder });
     } catch (error) {
         await client.query('ROLLBACK');
+        console.error('Order creation error:', error);
         res.status(500).json({ error: error.message });
     } finally {
         client.release();
