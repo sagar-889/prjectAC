@@ -369,7 +369,7 @@ app.post('/api/orders/create', authenticateToken, async (req, res) => {
         );
 
         await client.query('COMMIT');
-        res.json({ order, rzpOrder });
+        res.json({ order, razorpayOrder: rzpOrder });
     } catch (error) {
         await client.query('ROLLBACK');
         res.status(500).json({ error: error.message });
