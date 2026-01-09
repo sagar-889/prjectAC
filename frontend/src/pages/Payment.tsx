@@ -46,7 +46,18 @@ const Payment = () => {
 
     try {
       // Create order and get Razorpay order ID
-      const { order, razorpayOrder } = await api.createOrder(orderData);
+      const response = await api.createOrder(orderData);
+      
+      // Validate response
+      if (!response || !response.order || !response.razorpayOrder) {
+        throw new Error("Invalid response from server. Please try again.");
+      }
+
+      const { order, razorpayOrder } = response;
+
+      if (!order.id || !razorpayOrder.id) {
+        throw new Error("Order creation failed. Please try again.");
+      }
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
