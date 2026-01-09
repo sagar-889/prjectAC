@@ -89,18 +89,29 @@ app.post('/api/orders/test', authenticateToken, async (req, res) => {
     try {
         const { items, total, shipping_address } = req.body;
         
+        // Test database connection
+        const dbTest = await pool.query('SELECT NOW()');
+        
+        // Test Razorpay
+        let razorpayTest = 'Not configured';
+        if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+            razorpayTest = 'Configured';
+        }
+        
         res.json({
+            status: 'ok',
+            database: dbTest.rows[0] ? 'connected' : 'disconnected',
+            razorpay: razorpayTest,
             received: {
                 itemsCount: items?.length,
                 firstItem: items?.[0],
                 total,
-                shipping_address,
+                hasShippingAddress: !!shipping_address,
                 userId: req.user.id
-            },
-            razorpayConfigured: !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET)
+            }
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 
@@ -410,7 +421,9 @@ app.post('/api/orders/create', authenticateToken, async (req, res) => {
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Order creation error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Error stack:', error.stack);
+        console.error('Request body:', req.body);
+        res.status(500).json({ error: error.message, details: error.stack });
     } finally {
         client.release();
     }
