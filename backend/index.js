@@ -349,7 +349,7 @@ app.post('/api/orders/create', authenticateToken, async (req, res) => {
         for (const item of items) {
             await client.query(
                 'INSERT INTO order_items (order_id, product_id, quantity, price, size, color) VALUES ($1, $2, $3, $4, $5, $6)',
-                [order.id, item.product.id, item.quantity, item.product.price, item.size, item.color]
+                [order.id, item.product_id, item.quantity, item.price, item.size, item.color]
             );
         }
 
