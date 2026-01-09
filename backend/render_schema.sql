@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   email TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   full_name TEXT,
+  mobile_number TEXT,
   avatar_url TEXT,
   role TEXT DEFAULT 'user',
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),

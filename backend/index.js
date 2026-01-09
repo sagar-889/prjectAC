@@ -83,13 +83,13 @@ app.get('/health', (req, res) => {
 // Auth Routes
 app.post('/api/auth/signup', async (req, res) => {
     try {
-        const { email, password, full_name } = req.body;
+        const { email, password, full_name, mobile_number } = req.body;
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await pool.query(
-            'INSERT INTO users (email, password_hash, full_name) VALUES ($1, $2, $3) RETURNING id, email, full_name, role, created_at',
-            [email, hashedPassword, full_name]
+            'INSERT INTO users (email, password_hash, full_name, mobile_number) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, mobile_number, role, created_at',
+            [email, hashedPassword, full_name, mobile_number]
         );
 
         const user = result.rows[0];
@@ -133,7 +133,7 @@ app.post('/api/auth/signin', async (req, res) => {
 
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, email, full_name, avatar_url, role, created_at FROM users WHERE id = $1', [req.user.id]);
+        const result = await pool.query('SELECT id, email, full_name, mobile_number, avatar_url, role, created_at FROM users WHERE id = $1', [req.user.id]);
         res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
