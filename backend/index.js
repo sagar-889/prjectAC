@@ -397,7 +397,7 @@ app.post('/api/orders/create', authenticateToken, async (req, res) => {
         const options = {
             amount: Math.round(total * 100), // amount in smallest currency unit
             currency: "INR",
-            receipt: `receipt_${order.id}`,
+            receipt: `rcpt_${order.id.substring(0, 30)}`, // Razorpay receipt max 40 chars
         };
 
         let rzpOrder;
