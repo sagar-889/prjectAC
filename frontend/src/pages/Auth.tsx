@@ -10,6 +10,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
+const mobileSchema = z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number");
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -18,8 +19,9 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; mobileNumber?: string }>({});
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ const Auth = () => {
   }, [user, loading, isAdmin, navigate]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; mobileNumber?: string } = {};
 
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
@@ -43,6 +45,13 @@ const Auth = () => {
     const passwordResult = passwordSchema.safeParse(password);
     if (!passwordResult.success) {
       newErrors.password = passwordResult.error.errors[0].message;
+    }
+
+    if (isSignUp && mobileNumber) {
+      const mobileResult = mobileSchema.safeParse(mobileNumber);
+      if (!mobileResult.success) {
+        newErrors.mobileNumber = mobileResult.error.errors[0].message;
+      }
     }
 
     setErrors(newErrors);
@@ -58,7 +67,7 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { user: userData, error } = await signUp(email, password, fullName);
+        const { user: userData, error } = await signUp(email, password, fullName, mobileNumber);
         if (error) {
           if (error.message.includes("already registered")) {
             toast.error("This email is already registered. Please sign in.");
@@ -145,6 +154,27 @@ const Auth = () => {
                     placeholder="Enter your name"
                     className="h-12 bg-secondary border-0"
                   />
+                </div>
+              )}
+
+              {isSignUp && (
+                <div>
+                  <label htmlFor="mobileNumber" className="text-sm font-medium mb-2 block">Mobile Number</label>
+                  <Input
+                    id="mobileNumber"
+                    name="mobileNumber"
+                    type="tel"
+                    value={mobileNumber}
+                    onChange={(e) => {
+                      setMobileNumber(e.target.value);
+                      setErrors((prev) => ({ ...prev, mobileNumber: undefined }));
+                    }}
+                    placeholder="Enter your mobile number"
+                    className={`h-12 bg-secondary border-0 ${errors.mobileNumber ? "ring-2 ring-destructive" : ""}`}
+                  />
+                  {errors.mobileNumber && (
+                    <p className="text-sm text-destructive mt-1">{errors.mobileNumber}</p>
+                  )}
                 </div>
               )}
 

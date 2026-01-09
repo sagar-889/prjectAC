@@ -28,10 +28,10 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
 
 export const api = {
   // Auth
-  signUp: (email: string, password: string, fullName?: string) =>
+  signUp: (email: string, password: string, fullName?: string, mobileNumber?: string) =>
     apiRequest('/api/auth/signup', {
       method: 'POST',
-      body: JSON.stringify({ email, password, full_name: fullName }),
+      body: JSON.stringify({ email, password, full_name: fullName, mobile_number: mobileNumber }),
     }),
 
   signIn: (email: string, password: string) =>
@@ -123,18 +123,8 @@ export const api = {
   getAllProducts: (params: string) => apiRequest(`/api/products?${params}`),
   getProductById: (id: string) => apiRequest(`/api/products/${id}`),
 
-  // Orders
+  // User Orders
   getUserOrders: () => apiRequest('/api/orders'),
-  createOrder: (orderData: any) =>
-    apiRequest('/api/orders', {
-      method: 'POST',
-      body: JSON.stringify(orderData),
-    }),
-  verifyPayment: (paymentData: any) =>
-    apiRequest('/api/orders/verify-payment', {
-      method: 'POST',
-      body: JSON.stringify(paymentData),
-    }),
 };
 
 export const setAuthToken = (token: string) => {

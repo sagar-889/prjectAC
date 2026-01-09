@@ -5,6 +5,7 @@ interface User {
   id: string;
   email: string;
   full_name: string | null;
+  mobile_number: string | null;
   avatar_url: string | null;
   role: string;
 }
@@ -13,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ user: User | null; error: Error | null }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ user: User | null; error: Error | null }>;
+  signUp: (email: string, password: string, fullName?: string, mobileNumber?: string) => Promise<{ user: User | null; error: Error | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
 }
@@ -60,9 +61,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, mobileNumber?: string) => {
     try {
-      const { user: userData, token } = await api.signUp(email, password, fullName);
+      const { user: userData, token } = await api.signUp(email, password, fullName, mobileNumber);
       setAuthToken(token);
       setUser(userData);
       return { user: userData, error: null };
