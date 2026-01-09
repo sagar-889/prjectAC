@@ -97,38 +97,9 @@ const Payment = () => {
           email: orderData.shipping_address.email,
           contact: orderData.shipping_address.phone,
         },
-        method: {
-          upi: true,
-          card: true,
-          netbanking: true,
-          wallet: true,
-        },
-        config: {
-          display: {
-            blocks: {
-              banks: {
-                name: 'All payment methods',
-                instruments: [
-                  {
-                    method: 'upi'
-                  },
-                  {
-                    method: 'card'
-                  },
-                  {
-                    method: 'netbanking'
-                  },
-                  {
-                    method: 'wallet'
-                  }
-                ]
-              }
-            },
-            sequence: ['block.banks'],
-            preferences: {
-              show_default_blocks: true
-            }
-          }
+        notes: {
+          order_id: order.id,
+          customer_name: orderData.shipping_address.fullName,
         },
         theme: {
           color: "#000000",
