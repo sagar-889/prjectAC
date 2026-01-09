@@ -81,7 +81,7 @@ const isAdmin = async (req, res, next) => {
 
 // Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', database: 'connected' });
+    res.json({ status: 'ok', database: 'connected', version: '1.0.1' });
 });
 
 // Auth Routes
