@@ -1,0 +1,47 @@
+services:
+  # Backend API Service
+  - type: web
+    name: lakshmi-backend
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+
+  # Frontend Static Site
+  - type: web
+    name: lakshmi-frontend
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://lakshmi-backend.onrender.com
+      - key: VITE_RAZORPAY_KEY_ID
+        sync: false
+      - key: VITE_PHONE
+        value: "+918247588435"
+      - key: VITE_WHATSAPP
+        value: "918247588435"
+      - key: VITE_ADDRESS
+        value: "9-262 pallapuveedhy, sankhavaram"
+      - key: VITE_MAP_URL
+        value: "https://maps.app.goo.gl/E9ccmQFJHA1nArE87"
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
