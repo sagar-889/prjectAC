@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { api } from "@/lib/api";
 import { toast } from "sonner";
 
 const Contact = () => {
@@ -45,9 +46,19 @@ const Contact = () => {
     setSubmitting(true);
 
     try {
-      // Simulate API call - replace with actual API endpoint
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Call the contact API endpoint
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({
         name: "",
