@@ -2,22 +2,22 @@ import { Link } from "react-router-dom";
 
 const footerLinks = {
   shop: [
-    { name: "New Arrivals", href: "#new" },
-    { name: "Living", href: "#living" },
-    { name: "Accessories", href: "#accessories" },
-    { name: "Gift Cards", href: "#" },
+    { name: "New Arrivals", href: "/shop?category=new-arrivals" },
+    { name: "Women", href: "/shop?category=women" },
+    { name: "Men", href: "/shop?category=men" },
+    { name: "Accessories", href: "/shop?category=accessories" },
   ],
   about: [
-    { name: "Our Story", href: "#" },
-    { name: "Sustainability", href: "#" },
-    { name: "Artisan Partners", href: "#" },
-    { name: "Press", href: "#" },
+    { name: "About Us", href: "/contact" },
+    { name: "Contact Us", href: "/contact" },
+    { name: "Terms & Conditions", href: "/terms" },
+    { name: "Privacy Policy", href: "/privacy-policy" },
   ],
   support: [
-    { name: "Contact Us", href: "#" },
-    { name: "Shipping", href: "#" },
-    { name: "Returns", href: "#" },
-    { name: "FAQ", href: "#" },
+    { name: "Shipping Policy", href: "/shipping-policy" },
+    { name: "Refund Policy", href: "/refund-policy" },
+    { name: "Track Order", href: "/orders" },
+    { name: "My Account", href: "/account" },
   ],
 };
 
@@ -44,12 +44,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -60,12 +60,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.about.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -76,12 +76,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -94,12 +94,18 @@ const Footer = () => {
             © 2026 Lakshmi Collections. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">
+            <Link to="/privacy-policy" className="hover:text-foreground transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Terms of Service
-            </a>
+            </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms & Conditions
+            </Link>
+            <Link to="/refund-policy" className="hover:text-foreground transition-colors">
+              Refund Policy
+            </Link>
+            <Link to="/shipping-policy" className="hover:text-foreground transition-colors">
+              Shipping Policy
+            </Link>
           </div>
         </div>
       </div>

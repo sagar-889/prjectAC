@@ -757,6 +757,34 @@ app.delete('/api/admin/reviews/:id', authenticateToken, isAdmin, async (req, res
     }
 });
 
+// Contact form submission
+app.post('/api/contact', async (req, res) => {
+    try {
+        const { name, phone, message } = req.body;
+
+        if (!name || !phone || !message) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        // Store contact message in database
+        const result = await pool.query(
+            `INSERT INTO contact_messages (name, phone, message, created_at) 
+             VALUES ($1, $2, $3, NOW()) 
+             RETURNING id, name, phone, message, created_at`,
+            [name, phone, message]
+        );
+
+        res.json({ 
+            success: true, 
+            message: 'Contact message received successfully',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Contact form error:', error);
+        res.status(500).json({ error: 'Failed to submit contact form' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
