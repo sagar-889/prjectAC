@@ -84,6 +84,26 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', database: 'connected', version: '1.0.1' });
 });
 
+// Debug endpoint to test order creation
+app.post('/api/orders/test', authenticateToken, async (req, res) => {
+    try {
+        const { items, total, shipping_address } = req.body;
+        
+        res.json({
+            received: {
+                itemsCount: items?.length,
+                firstItem: items?.[0],
+                total,
+                shipping_address,
+                userId: req.user.id
+            },
+            razorpayConfigured: !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET)
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Auth Routes
 app.post('/api/auth/signup', async (req, res) => {
     try {
