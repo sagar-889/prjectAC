@@ -1,17 +1,32 @@
-import { Link } from 'react-router-dom';
-import './LegalPages.css';
+import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const PrivacyPolicy = () => {
   return (
-    <div className="legal-page">
-      <div className="legal-container">
-        <header className="legal-header">
-          <Link to="/" className="back-link">← Back to Home</Link>
-          <h1>Privacy Policy</h1>
-          <p className="last-updated">Last Updated: January 3, 2026</p>
-        </header>
+    <>
+      <Helmet>
+        <title>Privacy Policy | Lakshmi Collections</title>
+      </Helmet>
 
-        <div className="legal-content">
+      <div className="min-h-screen bg-background">
+        <Header />
+
+        <main className="pt-20 lg:pt-24">
+          <div className="container mx-auto px-6 py-12">
+            <nav className="text-sm text-muted-foreground mb-4">
+              <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+              <span className="mx-2">/</span>
+              <span className="text-foreground">Privacy Policy</span>
+            </nav>
+
+            <h1 className="font-display text-4xl md:text-5xl font-medium mb-8">
+              Privacy Policy
+            </h1>
+
+            <div className="prose prose-neutral max-w-none space-y-6">
+              <p className="text-muted-foreground">Last updated: January 9, 2026</p>
           <section>
             <h2>1. Introduction</h2>
             <p>
@@ -198,15 +213,13 @@ const PrivacyPolicy = () => {
             </div>
           </section>
 
-          <section className="legal-footer">
-            <p>
-              By using our website and services, you acknowledge that you have read and understood this Privacy Policy 
-              and agree to its terms.
-            </p>
-          </section>
-        </div>
+            </div>
+          </div>
+        </main>
+
+        <Footer />
       </div>
-    </div>
+    </>
   );
 };
 
