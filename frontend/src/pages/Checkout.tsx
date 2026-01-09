@@ -14,7 +14,7 @@ import { toast } from "sonner";
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, total, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [formData, setFormData] = useState({
     fullName: user?.full_name || "",
@@ -29,6 +29,14 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+
+  // Check if user is logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error("Please login to continue with checkout");
+      navigate("/auth", { state: { from: "/checkout" } });
+    }
+  }, [user, authLoading, navigate]);
 
   // Auto-fill form when user data is available
   useEffect(() => {
