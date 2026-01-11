@@ -13,7 +13,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Increase limit for image uploads
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -782,6 +783,198 @@ app.post('/api/contact', async (req, res) => {
     } catch (error) {
         console.error('Contact form error:', error);
         res.status(500).json({ error: 'Failed to submit contact form' });
+    }
+});
+
+// Embroidery request submission
+app.post('/api/embroidery/request', authenticateToken, async (req, res) => {
+    try {
+        const { name, mobile_number, address, state, city, pincode, design_image_url } = req.body;
+
+        if (!name || !mobile_number || !address || !state || !design_image_url) {
+            return res.status(400).json({ error: 'All required fields must be provided' });
+        }
+
+        // Calculate shipping cost based on state
+        const shipping_cost = state.toLowerCase() === 'andhra pradesh' ? 80 : 150;
+
+        // Insert embroidery request
+        const result = await pool.query(
+            `INSERT INTO embroidery_requests 
+             (user_id, name, mobile_number, address, state, city, pincode, design_image_url, shipping_cost, total_cost, status) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, 'pending') 
+             RETURNING *`,
+            [req.user.id, name, mobile_number, address, state, city, pincode, design_image_url, shipping_cost]
+        );
+
+        res.json({ 
+            success: true, 
+            message: 'Embroidery request submitted successfully',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Embroidery request error:', error);
+        res.status(500).json({ error: 'Failed to submit embroidery request' });
+    }
+});
+
+// Get user's embroidery requests
+app.get('/api/embroidery/requests', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT * FROM embroidery_requests 
+             WHERE user_id = $1 
+             ORDER BY created_at DESC`,
+            [req.user.id]
+        );
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Get embroidery requests error:', error);
+        res.status(500).json({ error: 'Failed to fetch embroidery requests' });
+    }
+});
+
+// User approves a quote
+app.post('/api/embroidery/requests/:id/approve', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Verify the request belongs to the user
+        const checkResult = await pool.query(
+            'SELECT * FROM embroidery_requests WHERE id = $1 AND user_id = $2',
+            [id, req.user.id]
+        );
+
+        if (checkResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Request not found' });
+        }
+
+        const request = checkResult.rows[0];
+
+        if (request.status !== 'quoted') {
+            return res.status(400).json({ error: 'Can only approve quoted requests' });
+        }
+
+        // Update status to approved
+        const result = await pool.query(
+            `UPDATE embroidery_requests 
+             SET status = 'approved', updated_at = NOW()
+             WHERE id = $1
+             RETURNING *`,
+            [id]
+        );
+
+        res.json({ 
+            success: true, 
+            message: 'Quote approved successfully',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Approve quote error:', error);
+        res.status(500).json({ error: 'Failed to approve quote' });
+    }
+});
+
+// User rejects a quote
+app.post('/api/embroidery/requests/:id/reject', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rejection_reason } = req.body;
+
+        // Verify the request belongs to the user
+        const checkResult = await pool.query(
+            'SELECT * FROM embroidery_requests WHERE id = $1 AND user_id = $2',
+            [id, req.user.id]
+        );
+
+        if (checkResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Request not found' });
+        }
+
+        const request = checkResult.rows[0];
+
+        if (request.status !== 'quoted') {
+            return res.status(400).json({ error: 'Can only reject quoted requests' });
+        }
+
+        // Update status to cancelled with rejection reason
+        const result = await pool.query(
+            `UPDATE embroidery_requests 
+             SET status = 'cancelled', 
+                 admin_notes = CASE 
+                     WHEN admin_notes IS NULL OR admin_notes = '' THEN $2
+                     ELSE admin_notes || E'\n\n[User Rejection]: ' || $2
+                 END,
+                 updated_at = NOW()
+             WHERE id = $1
+             RETURNING *`,
+            [id, rejection_reason || 'User rejected the quoted price']
+        );
+
+        res.json({ 
+            success: true, 
+            message: 'Quote rejected. We will contact you to discuss alternatives.',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Reject quote error:', error);
+        res.status(500).json({ error: 'Failed to reject quote' });
+    }
+});
+
+// Admin: Get all embroidery requests
+app.get('/api/admin/embroidery/requests', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT er.*, u.email as user_email 
+             FROM embroidery_requests er
+             JOIN users u ON er.user_id = u.id
+             ORDER BY er.created_at DESC`
+        );
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Get admin embroidery requests error:', error);
+        res.status(500).json({ error: 'Failed to fetch embroidery requests' });
+    }
+});
+
+// Admin: Update embroidery request with design cost
+app.put('/api/admin/embroidery/requests/:id', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { design_cost, status, admin_notes } = req.body;
+
+        // Get current request to calculate total
+        const current = await pool.query(
+            'SELECT shipping_cost FROM embroidery_requests WHERE id = $1',
+            [id]
+        );
+
+        if (current.rows.length === 0) {
+            return res.status(404).json({ error: 'Request not found' });
+        }
+
+        const shipping_cost = current.rows[0].shipping_cost;
+        const total_cost = parseFloat(design_cost || 0) + parseFloat(shipping_cost);
+
+        const result = await pool.query(
+            `UPDATE embroidery_requests 
+             SET design_cost = $1, total_cost = $2, status = $3, admin_notes = $4, updated_at = NOW()
+             WHERE id = $5
+             RETURNING *`,
+            [design_cost, total_cost, status, admin_notes, id]
+        );
+
+        res.json({ 
+            success: true, 
+            message: 'Embroidery request updated successfully',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Update embroidery request error:', error);
+        res.status(500).json({ error: 'Failed to update embroidery request' });
     }
 });
 

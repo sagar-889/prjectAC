@@ -8,7 +8,8 @@ import {
     LogOut,
     ChevronRight,
     Menu,
-    X
+    X,
+    Sparkles
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,12 +20,41 @@ const AdminLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [approvedCount, setApprovedCount] = useState(0);
 
     useEffect(() => {
         if (!loading && !isAdmin) {
             navigate("/");
         }
     }, [isAdmin, loading, navigate]);
+
+    // Fetch approved embroidery requests count
+    useEffect(() => {
+        const fetchApprovedCount = async () => {
+            if (!isAdmin) return;
+            
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/embroidery/requests`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const approved = data.filter((r: any) => r.status === 'approved').length;
+                    setApprovedCount(approved);
+                }
+            } catch (error) {
+                console.error('Failed to fetch approved count:', error);
+            }
+        };
+
+        fetchApprovedCount();
+        // Refresh every 30 seconds
+        const interval = setInterval(fetchApprovedCount, 30000);
+        return () => clearInterval(interval);
+    }, [isAdmin]);
 
     if (loading) return <div>Loading...</div>;
     if (!isAdmin) return null;
@@ -33,6 +63,7 @@ const AdminLayout = () => {
         { label: "Overview", icon: BarChart3, href: "/admin" },
         { label: "Products", icon: Package, href: "/admin/products" },
         { label: "Orders", icon: ShoppingBag, href: "/admin/orders" },
+        { label: "Embroidery", icon: Sparkles, href: "/admin/embroidery" },
         { label: "Reviews", icon: MessageSquare, href: "/admin/reviews" },
     ];
 
@@ -66,12 +97,14 @@ const AdminLayout = () => {
                     <nav className="flex-1 px-4 space-y-1">
                         {menuItems.map((item) => {
                             const isActive = location.pathname === item.href;
+                            const showBadge = item.label === "Embroidery" && approvedCount > 0;
+                            
                             return (
                                 <Link
                                     key={item.label}
                                     to={item.href}
                                     className={`
-                    flex items-center gap-3 px-4 py-3 rounded-sm transition-colors
+                    flex items-center gap-3 px-4 py-3 rounded-sm transition-colors relative
                     ${isActive
                                             ? "bg-primary text-primary-foreground"
                                             : "text-muted-foreground hover:bg-secondary hover:text-foreground"}
@@ -79,6 +112,11 @@ const AdminLayout = () => {
                                 >
                                     <item.icon className="h-5 w-5" />
                                     <span className="font-medium">{item.label}</span>
+                                    {showBadge && (
+                                        <span className="ml-auto bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                                            {approvedCount}
+                                        </span>
+                                    )}
                                     {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
                                 </Link>
                             );

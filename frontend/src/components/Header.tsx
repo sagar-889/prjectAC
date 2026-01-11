@@ -15,12 +15,9 @@ const Header = () => {
   const navLinks = [
     { name: "New Arrivals", href: "/shop?filter=new" },
     { name: "Shop All", href: "/shop" },
+    { name: "Embroidery", href: "/embroidery" },
     { name: "Sale", href: "/shop?filter=sale" },
   ];
-
-  if (isAdmin) {
-    navLinks.push({ name: "Admin Panel", href: "/admin" });
-  }
 
   return (
     <>

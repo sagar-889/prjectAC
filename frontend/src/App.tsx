@@ -17,6 +17,7 @@ import Orders from "./pages/Orders";
 import Checkout from "./pages/Checkout";
 import Payment from "./pages/Payment";
 import Contact from "./pages/Contact";
+import Embroidery from "./pages/Embroidery";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
@@ -27,6 +28,7 @@ import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminEmbroidery from "./pages/admin/AdminEmbroidery";
 import AdminReviews from "./pages/admin/AdminReviews";
 
 const queryClient = new QueryClient();
@@ -52,6 +54,7 @@ const App = () => (
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/payment" element={<Payment />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/embroidery" element={<Embroidery />} />
                   <Route path="/terms" element={<TermsAndConditions />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/refund-policy" element={<RefundPolicy />} />
@@ -62,6 +65,7 @@ const App = () => (
                     <Route index element={<AdminDashboard />} />
                     <Route path="products" element={<AdminProducts />} />
                     <Route path="orders" element={<AdminOrders />} />
+                    <Route path="embroidery" element={<AdminEmbroidery />} />
                     <Route path="reviews" element={<AdminReviews />} />
                   </Route>
 
